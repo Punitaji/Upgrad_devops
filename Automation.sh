@@ -58,8 +58,35 @@ create_tar_archives() {
         tar -cvf /tmp/$name-httpd-logs-$timestamp.tar /var/log/apache2/*.log
         aws s3 cp /tmp/$name-httpd-logs-$timestamp.tar s3://$s3_bucket/$name-httpd-logs-$timestamp.tar
 }
+
+#No of  bookkeeping of archived files
+Noof_bookkeeping() {
+        inventory_file="/var/www/html/inventory.html"
+        if [ -f "$inventory_file" ]; then
+                echo "$inventory_file exists."
+        else
+                echo "Creating $inventory_file"
+                echo "Log Type                      Date Created               Type      Size" >> $inventory_file
+        fi
+        size=`du -sh /tmp/$name-httpd-logs-$timestamp.tar | awk  '{print $1}'`
+        echo "httpd-logs                $timestamp              tar             $size" >> $inventory_file
+}
+
+#Manual execution of the script
+cron_jobs() {
+        cron_file="/etc/cron.d/automation"
+        if [ -f "$cron_file" ]; then
+            echo "$cron_file exists."
+        else
+                echo "Creating $cron_file"
+                echo "0 11 * * * root sh /root/Automation_Project/automation.sh" >> $cron_file
+        fi
+}
+
 update_instances
 apache2_package_installation
 apache_running_status
 apache_service_enabled
 create_tar_archives
+Noof_bookkeeping
+cron_job
