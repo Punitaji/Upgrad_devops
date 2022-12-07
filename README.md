@@ -1,4 +1,4 @@
-# Upgrad_devops
+
 The following operations are carried out by this script:
 
 1.Updating the packaging information
